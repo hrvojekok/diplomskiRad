@@ -5,7 +5,6 @@
 #include<Arduino.h>
 
 
-
 // GPIO5  -- SX1278's SCK
 // GPIO19 -- SX1278's MISO
 // GPIO27 -- SX1278's MOSI

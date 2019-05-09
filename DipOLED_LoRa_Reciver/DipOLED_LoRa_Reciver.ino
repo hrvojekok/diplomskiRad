@@ -46,15 +46,6 @@ void cbk(int packetSize) {
 }
 
 
-String cbkString(int packetSize) {
-  String data;
-  packet ="";
-  packSize = String(packetSize,DEC);
-  for (int i = 0; i < packetSize; i++) { packet += (char) LoRa.read(); }
-  rssi = "RSSI " + String(LoRa.packetRssi(), DEC) ;
-  loraData();
-}
-
 void setup() {
   Serial.begin(9600);
   
