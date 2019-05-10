@@ -31,7 +31,7 @@ void loraData(){
   display.clear();
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_10);
-  display.drawString(0 , 15 , "Received "+ packSize + " bytes");
+  display.drawString(0 , 15 , "Received "+ packSize + " bytes"); //remove after adding all sensors
   display.drawStringMaxWidth(0 , 26 , 128, packet);
   display.drawString(0, 0, rssi);  
   display.display();
