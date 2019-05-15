@@ -14,7 +14,7 @@
 #define BAND    433E6  //915E6 - frequency for LoRa 433MHz/915MHz
 
 int first = 36;
-int second = 39;
+int second = 35;
 int third = 34;
 
 int counter = 0;
