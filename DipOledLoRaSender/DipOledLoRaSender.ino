@@ -117,22 +117,22 @@ void loop() {
 
   // send packet
   LoRa.beginPacket();
-  LoRa.print(value1);
+  //LoRa.print(value1);
   LoRa.print(" | ");
   LoRa.print(percentageValue1);
-  LoRa.print(" | ");
-  LoRa.print(value2);
+  LoRa.print("% | ");
+  //LoRa.print(value2);
   LoRa.print(" | ");
   LoRa.print(percentageValue2);
-  LoRa.print(" | ");
-  LoRa.print(value3);
+  LoRa.print("% | ");
+  //LoRa.print(value3);
   LoRa.print(" | ");
   LoRa.print(percentageValue3);
-  LoRa.print(" | ");
+  LoRa.print("% | ");
   LoRa.print(temp);
-  LoRa.print(" | ");
+  LoRa.print("C | ");
   LoRa.print(humd);
-  LoRa.print(" | counter: ");
+  LoRa.print("% | counter: ");
 //  LoRa.print(" Soil moisture: ");
 //  LoRa.print(percentageValue1);
 //  LoRa.print("%  ");
