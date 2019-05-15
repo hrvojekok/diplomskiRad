@@ -1,44 +1,49 @@
-
-
 #include <SPI.h>
 #include <LoRa.h>
 #include<Arduino.h>
 #include "SSD1306.h" // alias for `#include "SSD1306Wire.h"`
 
-
-
-// GPIO5  -- SX1278's SCK
-// GPIO19 -- SX1278's MISO
-// GPIO27 -- SX1278's MOSI
-// GPIO18 -- SX1278's CS
-// GPIO14 -- SX1278's RESET
-// GPIO26 -- SX1278's IRQ(Interrupt Request)
+//added
+#include <Wire.h>
+#include "DFRobot_SHT20.h"
+//added end
 
 #define SS      18
 #define RST     14
 #define DI0     26
-#define BAND    433E6  //915E6 - frequency of LoRa 433MHz/915MHz
+#define BAND    433E6  //915E6 - frequency for LoRa 433MHz/915MHz
 
 int counter = 0;
 int value = 0;
 
-SSD1306  display(0x3c, 4, 15);
+//SSD1306  display(0x3c, 4, 15);
 
+//added
+DFRobot_SHT20    sht20; 
+//added end
 
 void setup() {
 
   //set up the OLED 
-  pinMode(16,OUTPUT);
-  digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
-  delay(50); 
-  digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
+//  pinMode(16,OUTPUT);
+//  digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
+//  delay(50); 
+//  digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
 
   Serial.begin(115200);
 
+  //added
+  Serial.println("SHT20 Example!");
+  sht20.initSHT20();                                  // Init SHT20 Sensor
+  delay(100);
+  sht20.checkSHT20();                                 // Check SHT20 Sensor
+  //added end
+
+
   //set up the OLED
-  display.init();
-  display.flipScreenVertically();
-  display.setFont(ArialMT_Plain_10);
+//  display.init();
+//  display.flipScreenVertically();
+//  display.setFont(ArialMT_Plain_10);
   
   while (!Serial); //If just the the basic function, must connect to a computer
 
@@ -55,12 +60,27 @@ void setup() {
 }
 
 void loop() {
+
+  //added
+  float humd = sht20.readHumidity();                  // Read Humidity
+  float temp = sht20.readTemperature();               // Read Temperature
+  Serial.print("Time:");
+  Serial.print(millis());
+  Serial.print(" Temperature:");
+  Serial.print(temp, 1);
+  Serial.print("C");
+  Serial.print(" Humidity:");
+  Serial.print(humd, 1);
+  Serial.print("%");
+  Serial.println();
+  //added end
+  
   value = analogRead(A0);
   //Serial.println(value);
   //Serial.println(value);
 
   //clear the OLED
-  display.clear();
+  //display.clear();
   
   //int percentageValue = convertToPercentages(value);
   
@@ -68,11 +88,11 @@ void loop() {
   int percentageValue = convertToPercentagesCapacitive(value);
   Serial.println(percentageValue);
 
-  display.drawString(0, 10, "Soil moisture: ");
-  display.drawString(65, 10, String(percentageValue));
-  display.drawString(85, 10, "%");
-  // write the buffer to the display
-  display.display();
+//  display.drawString(0, 10, "Soil moisture: ");
+//  display.drawString(65, 10, String(percentageValue));
+//  display.drawString(85, 10, "%");
+//  // write the buffer to the display
+//  display.display();
 
   Serial.print("Sending packet: ");
   //Serial.println(counter);
@@ -80,6 +100,10 @@ void loop() {
   // send packet
   LoRa.beginPacket();
   LoRa.print(value);
+  LoRa.print(" ");
+  LoRa.print(temp);
+  LoRa.print(" ");
+  LoRa.print(humd);
   LoRa.print(" Soil moisture: ");
   LoRa.print(percentageValue);
   LoRa.print("%  ");
