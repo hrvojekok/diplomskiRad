@@ -100,9 +100,6 @@ void loop() {
   }
   
 
-
-
-
   //added
   float humd = sht20.readHumidity();                  // Read Humidity
   float temp = sht20.readTemperature();               // Read Temperature
