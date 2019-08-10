@@ -5,6 +5,15 @@
 #include <WiFi.h>
 //#include "images.h"
 
+//thingspeak
+#include "ThingSpeak.h"
+#include "secrets.h"
+
+unsigned long myChannelNumber = SECRET_CH_ID;
+const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
+//thingspeak end
+
+
 #define SCK     5    // GPIO5  -- SX1278's SCK
 #define MISO    19   // GPIO19 -- SX1278's MISO
 #define MOSI    27   // GPIO27 -- SX1278's MOSI
@@ -14,10 +23,22 @@
 #define BAND    433E6 //915E6 - frequency of LoRa 433MHz/915MHz
 
 //wifi pass and ssid
-const char* ssid     = "6486EF";
-const char* password = "EVW32C0S00021595";
+//const char* ssid     = "6486EF";
+//const char* password = "EVW32C0S00021595";
+//const char* ssid     = "TRESNJEVACKI_MALISANI";
+//const char* password = "subidubidubi";
+//const char* ssid     = "AndroidHrvoje";
+//const char* password = "hrvojekokkok";
 
-WiFiServer server(80);
+//commented after adding thingspeak
+//WiFiServer server(80);
+
+//thingspeak
+char ssid[] = SECRET_SSID;   // your network SSID (name)
+char pass[] = SECRET_PASS;   // your network password
+int keyIndex = 0;            // your network key index number (needed only for WEP)
+WiFiClient  client;
+//thingspeak end
 
 
 SSD1306 display(0x3c, 4, 15);
@@ -47,7 +68,7 @@ void cbk(int packetSize) {
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   
   pinMode(16,OUTPUT);
   digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
@@ -55,18 +76,24 @@ void setup() {
   digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high、
 
   //set up wifi
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  server.begin();
+//  WiFi.begin(ssid, password);
+//
+//  while (WiFi.status() != WL_CONNECTED) {
+//        delay(500);
+//        Serial.print(".");
+//  }
+//  Serial.println("");
+//  Serial.println("WiFi connected");
+//  Serial.println("IP address: ");
+//  Serial.println(WiFi.localIP());
+//  server.begin();
   //set up wifi - end
+  
+  //thingspeak
+  WiFi.mode(WIFI_STA);
+  ThingSpeak.begin(client);
+  //thingspeak end
+  
   
   while (!Serial);
   Serial.println();
@@ -88,6 +115,23 @@ void setup() {
 }
 
 void loop() {
+
+  //connect to WiFi from thingspeak
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(SECRET_SSID);
+    while (WiFi.status() != WL_CONNECTED) {
+      WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+      Serial.print(".");
+      delay(5000);
+    }
+    Serial.println("\nConnected.");
+  }
+  //connect to WiFi from thingspeak end
+
+
+
+  
   int packetSize = LoRa.parsePacket();
   //String data;
   if (packetSize) { 
@@ -95,52 +139,119 @@ void loop() {
     cbk(packetSize);
     }
   delay(10);
+  Serial.println(packet);
+  String stringForUpload1;
+  String stringForUpload2;
+  String stringForUpload3;
+  String stringForUpload4;
+  String stringForUpload5;
+  stringForUpload1 = packet.substring(4,6);
+  stringForUpload2 = packet.substring(13,15);
+  stringForUpload3 = packet.substring(22,24);
+  stringForUpload4 = packet.substring(27,32);
+  stringForUpload5 = packet.substring(36,41);
+  Serial.println(stringForUpload1);
+  Serial.println(stringForUpload2);
+  Serial.println(stringForUpload3);
+  Serial.println(stringForUpload4);
+  Serial.println(stringForUpload5);
 
-  WiFiClient client = server.available();   // listen for incoming clients
 
-  if (client) {                             // if you get a client,
-    Serial.println("new client");           // print a message out the serial port
-    String currentLine = "";                // make a String to hold incoming data from the client
-    while (client.connected()) {            // loop while the client's connected
-      if (client.available()) {             // if there's bytes to read from the client,
-        char c = client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
-        if (c == '\n') {                    // if the byte is a newline character
+  // Write value to Field 1 of a ThingSpeak Channel
+  int httpCode1 = ThingSpeak.writeField(myChannelNumber, 1, stringForUpload1, myWriteAPIKey);
 
-          // if the current line is blank, you got two newline characters in a row.
-          // that's the end of the client HTTP request, so send a response:
-          if (currentLine.length() == 0) {
-            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-            // and a content-type so the client knows what's coming, then a blank line:
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/html");
-            client.println();
-
-            // the content of the HTTP response follows the header:
-            client.print(packet); 
-
-            // The HTTP response ends with another blank line:
-            client.println();
-            // break out of the while loop:
-            break;
-          } else {    // if you got a newline, then clear currentLine:
-            currentLine = "";
-          }
-        } else if (c != '\r') {  // if you got anything else but a carriage return character,
-          currentLine += c;      // add it to the end of the currentLine
-        }
-
-        // Check to see if the client request was "GET /H" or "GET /L":
-        if (currentLine.endsWith("GET /H")) {
-          digitalWrite(5, HIGH);               // GET /H turns the LED on
-        }
-        if (currentLine.endsWith("GET /L")) {
-          digitalWrite(5, LOW);                // GET /L turns the LED off
-        }
-      }
-    }
-    // close the connection:
-    client.stop();
-    Serial.println("client disonnected");
+  if (httpCode1 == 200) {
+    Serial.println("Channel write successful.");
   }
+  else {
+    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode1));
+  }
+
+  
+  int httpCode2 = ThingSpeak.writeField(myChannelNumber, 1, stringForUpload2, myWriteAPIKey);
+
+  if (httpCode2 == 200) {
+    Serial.println("Channel write successful.");
+  }
+  else {
+    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode2));
+  }
+
+
+  int httpCode3 = ThingSpeak.writeField(myChannelNumber, 3, stringForUpload3, myWriteAPIKey);
+
+  if (httpCode3 == 200) {
+    Serial.println("Channel write successful.");
+  }
+  else {
+    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode3));
+  }
+
+  int httpCode4 = ThingSpeak.writeField(myChannelNumber, 4, stringForUpload4, myWriteAPIKey);
+
+  if (httpCode4 == 200) {
+    Serial.println("Channel write successful.");
+  }
+  else {
+    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode4));
+  }
+
+  int httpCode5 = ThingSpeak.writeField(myChannelNumber, 4, stringForUpload5, myWriteAPIKey);
+
+  if (httpCode5 == 200) {
+    Serial.println("Channel write successful.");
+  }
+  else {
+    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode5));
+  }
+
+
+
+  //WiFiClient client = server.available();   // listen for incoming clients
+//
+//  if (client) {                             // if you get a client,
+//    Serial.println("new client");           // print a message out the serial port
+//    String currentLine = "";                // make a String to hold incoming data from the client
+//    while (client.connected()) {            // loop while the client's connected
+//      if (client.available()) {             // if there's bytes to read from the client,
+//        char c = client.read();             // read a byte, then
+//        Serial.write(c);                    // print it out the serial monitor
+//        if (c == '\n') {                    // if the byte is a newline character
+//
+//          // if the current line is blank, you got two newline characters in a row.
+//          // that's the end of the client HTTP request, so send a response:
+//          if (currentLine.length() == 0) {
+//            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+//            // and a content-type so the client knows what's coming, then a blank line:
+//            client.println("HTTP/1.1 200 OK");
+//            client.println("Content-type:text/html");
+//            client.println();
+//
+//            // the content of the HTTP response follows the header:
+//            client.print(packet); 
+//
+//            // The HTTP response ends with another blank line:
+//            client.println();
+//            // break out of the while loop:
+//            break;
+//          } else {    // if you got a newline, then clear currentLine:
+//            currentLine = "";
+//          }
+//        } else if (c != '\r') {  // if you got anything else but a carriage return character,
+//          currentLine += c;      // add it to the end of the currentLine
+//        }
+//
+//        // Check to see if the client request was "GET /H" or "GET /L":
+//        if (currentLine.endsWith("GET /H")) {
+//          digitalWrite(5, HIGH);               // GET /H turns the LED on
+//        }
+//        if (currentLine.endsWith("GET /L")) {
+//          digitalWrite(5, LOW);                // GET /L turns the LED off
+//        }
+//      }
+//    }
+//    // close the connection:
+//    client.stop();
+//    Serial.println("client disonnected");
+// }
 }
