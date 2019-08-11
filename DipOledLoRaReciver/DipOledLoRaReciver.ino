@@ -68,7 +68,7 @@ void cbk(int packetSize) {
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   
   pinMode(16,OUTPUT);
   digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
@@ -168,7 +168,7 @@ void loop() {
   }
 
   
-  int httpCode2 = ThingSpeak.writeField(myChannelNumber, 1, stringForUpload2, myWriteAPIKey);
+  int httpCode2 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
 
   if (httpCode2 == 200) {
     Serial.println("Channel write successful.");

@@ -22,15 +22,6 @@ int value1 = 0;
 int value2 = 0;
 int value3 = 0;
 
-//multiplexer inputs
-int outS1 = 12;
-int outS2 = 13;
-int outS3 = 17;
-int analogInput = 36;
-int arrayOfInputs[3] = {0};
-
-
-
 //SSD1306  display(0x3c, 4, 15);
 
 //added
@@ -44,12 +35,6 @@ void setup() {
 //  digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
 //  delay(50); 
 //  digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
-
-  //mulitplexer inputs
-  pinMode(outS1, OUTPUT);
-  pinMode(outS2, OUTPUT);
-  pinMode(outS3, OUTPUT);
-  pinMode(analogInput, INPUT);
 
   pinMode(first, INPUT);
   pinMode(second, INPUT);
@@ -87,19 +72,6 @@ void setup() {
 
 void loop() {
 
-  //multiplexer input
-  updateMultiplexer();
-  for(int i = 0; i < 3; i ++) {
-    if(i == 2) {
-      Serial.println(arrayOfInputs[i]);
-    } else {
-      Serial.print(arrayOfInputs[i]);
-      Serial.print(",");
-    }
-    
-  }
-  
-
   //added
   float humd = sht20.readHumidity();                  // Read Humidity
   float temp = sht20.readTemperature();               // Read Temperature
@@ -113,15 +85,10 @@ void loop() {
   Serial.print("%");
   Serial.println();
   //added end
-
-  value1 = arrayOfInputs[0];
-  value2 = arrayOfInputs[1];
-  value3 = arrayOfInputs[2];
-
   
-//  value1 = analogRead(first);
-//  value2 = analogRead(second);
-//  value3 = analogRead(third);
+  value1 = analogRead(first);
+  value2 = analogRead(second);
+  value3 = analogRead(third);
   //Serial.println(value);
   //Serial.println(value);
 
@@ -192,21 +159,4 @@ int convertToPercentages(int value) {
   int percentage;
   percentage = map(value, 4095, 0, 0, 100);
   return percentage;
-}
-
-void updateMultiplexer () {
-  switch(1){
-    case 1: 
-        digitalWrite(outS1, HIGH);
-        arrayOfInputs[0] = analogRead(analogInput);
-        digitalWrite(outS1, LOW);
-    case 2:
-        digitalWrite(outS2, HIGH);
-        arrayOfInputs[1] = analogRead(analogInput);
-        digitalWrite(outS2, LOW);
-    case 3:
-        digitalWrite(outS3, HIGH);
-        arrayOfInputs[2] = analogRead(analogInput);
-        digitalWrite(outS3, LOW);
-  }
 }
