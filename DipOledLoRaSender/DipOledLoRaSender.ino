@@ -13,9 +13,9 @@
 #define DI0     26
 #define BAND    433E6  //915E6 - frequency for LoRa 433MHz/915MHz
 
-int first = 36;
-int second = 35;
-int third = 34;
+int first = 36; //36
+int second = 35; //34
+int third = 34; //35 redom odogo prema dolje
 
 int counter = 0;
 int value1 = 0;
@@ -89,7 +89,7 @@ void loop() {
   value1 = analogRead(first);
   value2 = analogRead(second);
   value3 = analogRead(third);
-  //Serial.println(value);
+  Serial.println(value1);
   //Serial.println(value);
 
   //clear the OLED
@@ -148,15 +148,16 @@ void loop() {
 
 
 //when using capacitive soil moisture sensor use convertToPercentagesCapacitive function
+//now is showing -21 in percentage
 int convertToPercentagesCapacitive(int value){
   int percentage;
-  percentage = map(value, 1638, 3450, 100, 0);
+  percentage = map(value, 1638, 3819, 100, 0); //used to be 3450 -- TODO O OVOME TREBA PRICATI U DIPLOMSKOM
   return percentage;
 }
 
 //when using other sensors use convertToPercentages function
 int convertToPercentages(int value) {
   int percentage;
-  percentage = map(value, 4095, 0, 0, 100);
+  percentage = map(value, 4095, 0, 10, 100);
   return percentage;
 }
