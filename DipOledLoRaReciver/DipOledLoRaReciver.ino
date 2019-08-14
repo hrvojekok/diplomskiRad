@@ -47,6 +47,12 @@ String packSize = "--";
 String packet ;
 
 
+String stringForUpload1;
+String stringForUpload2;
+String stringForUpload3;
+String stringForUpload4;
+String stringForUpload5;
+
 
 void loraData(){
   display.clear();
@@ -76,17 +82,17 @@ void setup() {
   digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high、
 
   //set up wifi
-//  WiFi.begin(ssid, password);
-//
-//  while (WiFi.status() != WL_CONNECTED) {
-//        delay(500);
-//        Serial.print(".");
-//  }
-//  Serial.println("");
-//  Serial.println("WiFi connected");
-//  Serial.println("IP address: ");
-//  Serial.println(WiFi.localIP());
-//  server.begin();
+  WiFi.begin(ssid, pass);
+
+  while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  //server.begin();
   //set up wifi - end
   
   //thingspeak
@@ -117,16 +123,16 @@ void setup() {
 void loop() {
 
   //connect to WiFi from thingspeak
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(SECRET_SSID);
-    while (WiFi.status() != WL_CONNECTED) {
-      WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
-      Serial.print(".");
-      delay(5000);
-    }
-    Serial.println("\nConnected.");
-  }
+//  if (WiFi.status() != WL_CONNECTED) {
+//    Serial.print("Attempting to connect to SSID: ");
+//    Serial.println(SECRET_SSID);
+//    while (WiFi.status() != WL_CONNECTED) {
+//      WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+//      Serial.print(".");
+//      delay(5000);
+//    }
+//    Serial.println("\nConnected.");
+//  }
   //connect to WiFi from thingspeak end
 
 
@@ -140,11 +146,11 @@ void loop() {
     }
   delay(10);
   Serial.println(packet);
-  String stringForUpload1;
-  String stringForUpload2;
-  String stringForUpload3;
-  String stringForUpload4;
-  String stringForUpload5;
+//  String stringForUpload1;
+//  String stringForUpload2;
+//  String stringForUpload3;
+//  String stringForUpload4;
+//  String stringForUpload5;
   //|15|10|10|25.67|53.98| counter: 56
   stringForUpload1 = packet.substring(1,3);
   stringForUpload2 = packet.substring(4,6);
@@ -159,54 +165,56 @@ void loop() {
 
 
   // Write value to Field 1 of a ThingSpeak Channel
-  int httpCode1 = ThingSpeak.writeField(myChannelNumber, 1, stringForUpload1, myWriteAPIKey);
-  int httpCode2 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
+  int httpCode1;
+  httpCode1 = ThingSpeak.writeField(myChannelNumber, 1, stringForUpload1, myWriteAPIKey);
+  httpCode1 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
 
-  if (httpCode1 == 200 && httpCode2 == 200) {
-    Serial.println("Channel write successful.");
-  }
-  else {
-    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode1));
-  }
+  Serial.println(httpCode1);
+//  if (httpCode1 == 200) {
+//    Serial.println("Channel write successful.");
+//  }
+//  else {
+//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode1));
+//  }
 
-  
-  //int httpCode2 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
-
-  if (httpCode2 == 200) {
-    Serial.println("Channel write successful.");
-  }
-  else {
-    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode2));
-  }
-
-
-  int httpCode3 = ThingSpeak.writeField(myChannelNumber, 3, stringForUpload3, myWriteAPIKey);
-
-  if (httpCode3 == 200) {
-    Serial.println("Channel write successful.");
-  }
-  else {
-    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode3));
-  }
-
-  int httpCode4 = ThingSpeak.writeField(myChannelNumber, 4, stringForUpload4, myWriteAPIKey);
-
-  if (httpCode4 == 200) {
-    Serial.println("Channel write successful.");
-  }
-  else {
-    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode4));
-  }
-
-  int httpCode5 = ThingSpeak.writeField(myChannelNumber, 4, stringForUpload5, myWriteAPIKey);
-
-  if (httpCode5 == 200) {
-    Serial.println("Channel write successful.");
-  }
-  else {
-    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode5));
-  }
-
+//  
+//  int httpCode2 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
+//
+//  if (httpCode2 == 200) {
+//    Serial.println("Channel write successful.");
+//  }
+//  else {
+//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode2));
+//  }
+//
+//
+//  int httpCode3 = ThingSpeak.writeField(myChannelNumber, 3, stringForUpload3, myWriteAPIKey);
+//
+//  if (httpCode3 == 200) {
+//    Serial.println("Channel write successful.");
+//  }
+//  else {
+//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode3));
+//  }
+//
+//  int httpCode4 = ThingSpeak.writeField(myChannelNumber, 4, stringForUpload4, myWriteAPIKey);
+//
+//  if (httpCode4 == 200) {
+//    Serial.println("Channel write successful.");
+//  }
+//  else {
+//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode4));
+//  }
+//
+//  int httpCode5 = ThingSpeak.writeField(myChannelNumber, 4, stringForUpload5, myWriteAPIKey);
+//
+//  if (httpCode5 == 200) {
+//    Serial.println("Channel write successful.");
+//  }
+//  else {
+//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode5));
+//  }
+//
 
 
   //WiFiClient client = server.available();   // listen for incoming clients
@@ -256,4 +264,10 @@ void loop() {
 //    client.stop();
 //    Serial.println("client disonnected");
 // }
+ stringForUpload1 = "";
+ stringForUpload2 = "";
+ stringForUpload3 = "";
+ stringForUpload4 = "";
+ stringForUpload5 = "";
+
 }

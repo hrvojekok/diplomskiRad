@@ -151,7 +151,7 @@ void loop() {
 //now is showing -21 in percentage
 int convertToPercentagesCapacitive(int value){
   int percentage;
-  percentage = map(value, 1638, 3819, 100, 0); //used to be 3450 -- TODO O OVOME TREBA PRICATI U DIPLOMSKOM
+  percentage = map(value, 1638, 3819, 100, 10); //used to be 3450 -- TODO O OVOME TREBA PRICATI U DIPLOMSKOM
   return percentage;
 }
 
