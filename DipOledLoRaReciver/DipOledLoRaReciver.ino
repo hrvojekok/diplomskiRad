@@ -145,11 +145,12 @@ void loop() {
   String stringForUpload3;
   String stringForUpload4;
   String stringForUpload5;
-  stringForUpload1 = packet.substring(4,6);
-  stringForUpload2 = packet.substring(13,15);
-  stringForUpload3 = packet.substring(22,24);
-  stringForUpload4 = packet.substring(27,32);
-  stringForUpload5 = packet.substring(36,41);
+  //|15|10|10|25.67|53.98| counter: 56
+  stringForUpload1 = packet.substring(1,3);
+  stringForUpload2 = packet.substring(4,6);
+  stringForUpload3 = packet.substring(7,9);
+  stringForUpload4 = packet.substring(10,15);
+  stringForUpload5 = packet.substring(16,21);
   Serial.println(stringForUpload1);
   Serial.println(stringForUpload2);
   Serial.println(stringForUpload3);
@@ -159,8 +160,9 @@ void loop() {
 
   // Write value to Field 1 of a ThingSpeak Channel
   int httpCode1 = ThingSpeak.writeField(myChannelNumber, 1, stringForUpload1, myWriteAPIKey);
+  int httpCode2 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
 
-  if (httpCode1 == 200) {
+  if (httpCode1 == 200 && httpCode2 == 200) {
     Serial.println("Channel write successful.");
   }
   else {
@@ -168,7 +170,7 @@ void loop() {
   }
 
   
-  int httpCode2 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
+  //int httpCode2 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
 
   if (httpCode2 == 200) {
     Serial.println("Channel write successful.");
