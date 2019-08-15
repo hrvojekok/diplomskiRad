@@ -120,6 +120,36 @@ void setup() {
   delay(1500);
 }
 
+void writeToThingSpeak(){
+  int i;
+  String nameOfField = "";
+  for(i=0; i<3; i++){
+      nameOfField = "field" + i;
+      int nameOfFieldInt = nameOfField.toInt();
+      int http = ThingSpeak.writeField(myChannelNumber, 1, stringForUpload2, myWriteAPIKey);
+      // Check the return code
+        if(http == 200){
+          Serial.println("Channel update successful.");
+        }
+        else{
+          Serial.println("Problem updating channel. HTTP error code " + String(http));
+        }
+  }
+  //ThingSpeak.writeField(myChannelNumber, field2, stringForUpload2, myWriteAPIKey);
+}
+
+void readDataLoRa(){
+ 
+  int packetSize = LoRa.parsePacket();
+  //String data;
+  if (packetSize) { 
+    //data = cbkString(packetSize);
+    cbk(packetSize);
+    }
+  delay(10);
+  Serial.println(packet);
+}
+
 void loop() {
 
   //connect to WiFi from thingspeak
@@ -137,39 +167,42 @@ void loop() {
 
 
 
+readDataLoRa();
+//
+//  
+//  int packetSize = LoRa.parsePacket();
+//  //String data;
+//  if (packetSize) { 
+//    //data = cbkString(packetSize);
+//    cbk(packetSize);
+//    }
+//  delay(10);
+//  Serial.println(packet);
+
   
-  int packetSize = LoRa.parsePacket();
-  //String data;
-  if (packetSize) { 
-    //data = cbkString(packetSize);
-    cbk(packetSize);
-    }
-  delay(10);
-  Serial.println(packet);
 //  String stringForUpload1;
 //  String stringForUpload2;
 //  String stringForUpload3;
 //  String stringForUpload4;
 //  String stringForUpload5;
-  //|15|10|10|25.67|53.98| counter: 56
-  stringForUpload1 = packet.substring(1,3);
-  stringForUpload2 = packet.substring(4,6);
-  stringForUpload3 = packet.substring(7,9);
-  stringForUpload4 = packet.substring(10,15);
-  stringForUpload5 = packet.substring(16,21);
-  Serial.println(stringForUpload1);
-  Serial.println(stringForUpload2);
-  Serial.println(stringForUpload3);
-  Serial.println(stringForUpload4);
-  Serial.println(stringForUpload5);
+  
 
-
+  parseString(packet);
   // Write value to Field 1 of a ThingSpeak Channel
   int httpCode1;
-  httpCode1 = ThingSpeak.writeField(myChannelNumber, 1, stringForUpload1, myWriteAPIKey);
-  httpCode1 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
-
   Serial.println(httpCode1);
+  Serial.println("prvi");
+  int field1 = 1;
+  int field2 = 2;
+  httpCode1 = 1;
+  writeToThingSpeak();
+  //ThingSpeak.writeField(myChannelNumber, field2, stringForUpload2, myWriteAPIKey);
+  //ThingSpeak.writeField(myChannelNumber, field1, stringForUpload1, myWriteAPIKey);
+  //ThingSpeak.writeField(myChannelNumber, field2, stringForUpload2, myWriteAPIKey);
+  Serial.println(httpCode1);
+  //httpCode1 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
+
+  //Serial.println(httpCode1);
 //  if (httpCode1 == 200) {
 //    Serial.println("Channel write successful.");
 //  }
@@ -216,58 +249,21 @@ void loop() {
 //  }
 //
 
+delay(2000);
 
-  //WiFiClient client = server.available();   // listen for incoming clients
-//
-//  if (client) {                             // if you get a client,
-//    Serial.println("new client");           // print a message out the serial port
-//    String currentLine = "";                // make a String to hold incoming data from the client
-//    while (client.connected()) {            // loop while the client's connected
-//      if (client.available()) {             // if there's bytes to read from the client,
-//        char c = client.read();             // read a byte, then
-//        Serial.write(c);                    // print it out the serial monitor
-//        if (c == '\n') {                    // if the byte is a newline character
-//
-//          // if the current line is blank, you got two newline characters in a row.
-//          // that's the end of the client HTTP request, so send a response:
-//          if (currentLine.length() == 0) {
-//            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-//            // and a content-type so the client knows what's coming, then a blank line:
-//            client.println("HTTP/1.1 200 OK");
-//            client.println("Content-type:text/html");
-//            client.println();
-//
-//            // the content of the HTTP response follows the header:
-//            client.print(packet); 
-//
-//            // The HTTP response ends with another blank line:
-//            client.println();
-//            // break out of the while loop:
-//            break;
-//          } else {    // if you got a newline, then clear currentLine:
-//            currentLine = "";
-//          }
-//        } else if (c != '\r') {  // if you got anything else but a carriage return character,
-//          currentLine += c;      // add it to the end of the currentLine
-//        }
-//
-//        // Check to see if the client request was "GET /H" or "GET /L":
-//        if (currentLine.endsWith("GET /H")) {
-//          digitalWrite(5, HIGH);               // GET /H turns the LED on
-//        }
-//        if (currentLine.endsWith("GET /L")) {
-//          digitalWrite(5, LOW);                // GET /L turns the LED off
-//        }
-//      }
-//    }
-//    // close the connection:
-//    client.stop();
-//    Serial.println("client disonnected");
-// }
- stringForUpload1 = "";
- stringForUpload2 = "";
- stringForUpload3 = "";
- stringForUpload4 = "";
- stringForUpload5 = "";
+}
 
+
+void parseString(String packet){
+  //|15|10|10|25.67|53.98| counter: 56
+  stringForUpload1 = packet.substring(1,3);
+  stringForUpload2 = packet.substring(4,6);
+  stringForUpload3 = packet.substring(7,9);
+  stringForUpload4 = packet.substring(10,15);
+  stringForUpload5 = packet.substring(16,21);
+  Serial.println(stringForUpload1);
+  Serial.println(stringForUpload2);
+  Serial.println(stringForUpload3);
+  Serial.println(stringForUpload4);
+  Serial.println(stringForUpload5);
 }
