@@ -8,10 +8,18 @@
 //thingspeak
 #include "ThingSpeak.h"
 #include "secrets.h"
+//
+//unsigned long myChannelNumber = SECRET_CH_ID;
+//const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
+////thingspeak end
 
-unsigned long myChannelNumber = SECRET_CH_ID;
-const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
-//thingspeak end
+
+const char* ssid     = "TRESNJEVACKI_MALISANI"; // Your SSID (Name of your WiFi)
+const char* password = "subidubidubi"; //Your Wifi password
+
+const char* host = "api.thingspeak.com";
+String api_key = "F8V6VSOLV80LLZV3"; // Your API Key provied by thingspeak
+
 
 
 #define SCK     5    // GPIO5  -- SX1278's SCK
@@ -34,8 +42,8 @@ const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
 //WiFiServer server(80);
 
 //thingspeak
-char ssid[] = SECRET_SSID;   // your network SSID (name)
-char pass[] = SECRET_PASS;   // your network password
+//char ssid[] = SECRET_SSID;   // your network SSID (name)
+//char pass[] = SECRET_PASS;   // your network password
 int keyIndex = 0;            // your network key index number (needed only for WEP)
 WiFiClient  client;
 //thingspeak end
@@ -82,7 +90,7 @@ void setup() {
   digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high、
 
   //set up wifi
-  WiFi.begin(ssid, pass);
+  WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -121,21 +129,48 @@ void setup() {
 }
 
 void writeToThingSpeak(){
-  int i;
-  String nameOfField = "";
-  for(i=0; i<3; i++){
-      nameOfField = "field" + i;
-      int nameOfFieldInt = nameOfField.toInt();
-      int http = ThingSpeak.writeField(myChannelNumber, 1, stringForUpload2, myWriteAPIKey);
-      // Check the return code
-        if(http == 200){
-          Serial.println("Channel update successful.");
-        }
-        else{
-          Serial.println("Problem updating channel. HTTP error code " + String(http));
-        }
+ 
+
+  Serial.println("Prepare to send data");
+
+  // Use WiFiClient class to create TCP connections
+  WiFiClient client;
+
+  const int httpPort = 80;
+
+  if (!client.connect(host, httpPort)) {
+    Serial.println("connection failed");
+    return;
   }
-  //ThingSpeak.writeField(myChannelNumber, field2, stringForUpload2, myWriteAPIKey);
+  else
+  {
+    
+    String data_to_send = api_key;
+    data_to_send += "&field1=";
+    data_to_send += String(stringForUpload1);
+    data_to_send += "&field2=";
+    data_to_send += String(stringForUpload2);
+    data_to_send += "&field3=";
+    data_to_send += String(stringForUpload3);
+    data_to_send += "&field4=";
+    data_to_send += String(stringForUpload4);
+    data_to_send += "\r\n\r\n";
+
+    client.print("POST /update HTTP/1.1\n");
+    client.print("Host: api.thingspeak.com\n");
+    client.print("Connection: close\n");
+    client.print("X-THINGSPEAKAPIKEY: " + api_key + "\n");
+    client.print("Content-Type: application/x-www-form-urlencoded\n");
+    client.print("Content-Length: ");
+    client.print(data_to_send.length());
+    client.print("\n\n");
+    client.print(data_to_send);
+
+    delay(1000);
+  }
+
+  client.stop();
+
 }
 
 void readDataLoRa(){
@@ -151,106 +186,9 @@ void readDataLoRa(){
 }
 
 void loop() {
-
-  //connect to WiFi from thingspeak
-//  if (WiFi.status() != WL_CONNECTED) {
-//    Serial.print("Attempting to connect to SSID: ");
-//    Serial.println(SECRET_SSID);
-//    while (WiFi.status() != WL_CONNECTED) {
-//      WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
-//      Serial.print(".");
-//      delay(5000);
-//    }
-//    Serial.println("\nConnected.");
-//  }
-  //connect to WiFi from thingspeak end
-
-
-
-readDataLoRa();
-//
-//  
-//  int packetSize = LoRa.parsePacket();
-//  //String data;
-//  if (packetSize) { 
-//    //data = cbkString(packetSize);
-//    cbk(packetSize);
-//    }
-//  delay(10);
-//  Serial.println(packet);
-
-  
-//  String stringForUpload1;
-//  String stringForUpload2;
-//  String stringForUpload3;
-//  String stringForUpload4;
-//  String stringForUpload5;
-  
-
+  readDataLoRa();
   parseString(packet);
-  // Write value to Field 1 of a ThingSpeak Channel
-  int httpCode1;
-  Serial.println(httpCode1);
-  Serial.println("prvi");
-  int field1 = 1;
-  int field2 = 2;
-  httpCode1 = 1;
   writeToThingSpeak();
-  //ThingSpeak.writeField(myChannelNumber, field2, stringForUpload2, myWriteAPIKey);
-  //ThingSpeak.writeField(myChannelNumber, field1, stringForUpload1, myWriteAPIKey);
-  //ThingSpeak.writeField(myChannelNumber, field2, stringForUpload2, myWriteAPIKey);
-  Serial.println(httpCode1);
-  //httpCode1 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
-
-  //Serial.println(httpCode1);
-//  if (httpCode1 == 200) {
-//    Serial.println("Channel write successful.");
-//  }
-//  else {
-//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode1));
-//  }
-
-//  
-//  int httpCode2 = ThingSpeak.writeField(myChannelNumber, 2, stringForUpload2, myWriteAPIKey);
-//
-//  if (httpCode2 == 200) {
-//    Serial.println("Channel write successful.");
-//  }
-//  else {
-//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode2));
-//  }
-//
-//
-//  int httpCode3 = ThingSpeak.writeField(myChannelNumber, 3, stringForUpload3, myWriteAPIKey);
-//
-//  if (httpCode3 == 200) {
-//    Serial.println("Channel write successful.");
-//  }
-//  else {
-//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode3));
-//  }
-//
-//  int httpCode4 = ThingSpeak.writeField(myChannelNumber, 4, stringForUpload4, myWriteAPIKey);
-//
-//  if (httpCode4 == 200) {
-//    Serial.println("Channel write successful.");
-//  }
-//  else {
-//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode4));
-//  }
-//
-//  int httpCode5 = ThingSpeak.writeField(myChannelNumber, 4, stringForUpload5, myWriteAPIKey);
-//
-//  if (httpCode5 == 200) {
-//    Serial.println("Channel write successful.");
-//  }
-//  else {
-//    Serial.println("Problem writing to channel. HTTP error code " + String(httpCode5));
-//  }
-//
-
-delay(2000);
-
 }
 
 
