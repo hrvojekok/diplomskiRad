@@ -30,34 +30,19 @@ DFRobot_SHT20    sht20;
 
 void setup() {
 
-  //set up the OLED 
-//  pinMode(16,OUTPUT);
-//  digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
-//  delay(50); 
-//  digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
-
   pinMode(first, INPUT);
   pinMode(second, INPUT);
   pinMode(third, INPUT);
 
-  
   Serial.begin(115200);
-
   //added
   Serial.println("SHT20 Example!");
-  sht20.initSHT20();                                  // Init SHT20 Sensor
+  sht20.initSHT20();                                  
   delay(100);
-  sht20.checkSHT20();                                 // Check SHT20 Sensor
+  sht20.checkSHT20();                                 
   //added end
-
-
-  //set up the OLED
-//  display.init();
-//  display.flipScreenVertically();
-//  display.setFont(ArialMT_Plain_10);
   
   while (!Serial); //If just the the basic function, must connect to a computer
-
   SPI.begin(5, 19, 27, 18); //when compiled - gives an error, but it uploads without any problems
   //SPI.begin();
   LoRa.setPins(SS, RST, DI0);
@@ -73,8 +58,8 @@ void setup() {
 void loop() {
 
   //added
-  float humd = sht20.readHumidity();                  // Read Humidity
-  float temp = sht20.readTemperature();               // Read Temperature
+  float humd = sht20.readHumidity();                
+  float temp = sht20.readTemperature();               
   Serial.print("Time:");
   Serial.print(millis());
   Serial.print(" Temperature:");
@@ -89,14 +74,9 @@ void loop() {
   value1 = analogRead(first);
   value2 = analogRead(second);
   value3 = analogRead(third);
-  Serial.println(value1);
+  //Serial.println(value1);
   //Serial.println(value);
 
-  //clear the OLED
-  //display.clear();
-  
-  //int percentageValue = convertToPercentages(value);
-  
   //when using capacitive soil moisture sensor use convertToPercentagesCapacitive function
   int percentageValue1 = convertToPercentagesCapacitive(value1);
   int percentageValue2 = convertToPercentages(value2);
@@ -105,12 +85,6 @@ void loop() {
   Serial.println(percentageValue1);
   Serial.println(percentageValue2);
   Serial.println(percentageValue3);
-
-//  display.drawString(0, 10, "Soil moisture: ");
-//  display.drawString(65, 10, String(percentageValue));
-//  display.drawString(85, 10, "%");
-//  // write the buffer to the display
-//  display.display();
 
   Serial.print("Sending packet: ");
   //Serial.println(counter);
@@ -129,9 +103,9 @@ void loop() {
   LoRa.print("|");
   LoRa.print(percentageValue3);
   LoRa.print("|");
-  LoRa.print(temp);
-  LoRa.print("|");
   LoRa.print(humd);
+  LoRa.print("|");
+  LoRa.print(temp);
   LoRa.print("| counter: ");
 //  LoRa.print(" Soil moisture: ");
 //  LoRa.print(percentageValue1);
@@ -148,7 +122,6 @@ void loop() {
 
 
 //when using capacitive soil moisture sensor use convertToPercentagesCapacitive function
-//now is showing -21 in percentage
 int convertToPercentagesCapacitive(int value){
   int percentage;
   percentage = map(value, 1638, 3819, 100, 10); //used to be 3450 -- TODO O OVOME TREBA PRICATI U DIPLOMSKOM

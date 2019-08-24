@@ -3,7 +3,6 @@
 #include <Wire.h>  
 #include "SSD1306.h" 
 #include <WiFi.h>
-//#include "images.h"
 
 //thingspeak
 #include "ThingSpeak.h"
@@ -14,6 +13,13 @@
 ////thingspeak end
 
 
+//wifi pass and ssid
+//const char* ssid     = "6486EF";
+//const char* password = "EVW32C0S00021595";
+//const char* ssid     = "TRESNJEVACKI_MALISANI";
+//const char* password = "subidubidubi";
+//const char* ssid     = "AndroidHrvoje";
+//const char* password = "hrvojekokkok";
 const char* ssid     = "TRESNJEVACKI_MALISANI"; // Your SSID (Name of your WiFi)
 const char* password = "subidubidubi"; //Your Wifi password
 
@@ -30,20 +36,11 @@ String api_key = "F8V6VSOLV80LLZV3"; // Your API Key provied by thingspeak
 #define DI0     26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
 #define BAND    433E6 //915E6 - frequency of LoRa 433MHz/915MHz
 
-//wifi pass and ssid
-//const char* ssid     = "6486EF";
-//const char* password = "EVW32C0S00021595";
-//const char* ssid     = "TRESNJEVACKI_MALISANI";
-//const char* password = "subidubidubi";
-//const char* ssid     = "AndroidHrvoje";
-//const char* password = "hrvojekokkok";
 
 //commented after adding thingspeak
 //WiFiServer server(80);
 
-//thingspeak
-//char ssid[] = SECRET_SSID;   // your network SSID (name)
-//char pass[] = SECRET_PASS;   // your network password
+
 int keyIndex = 0;            // your network key index number (needed only for WEP)
 WiFiClient  client;
 //thingspeak end
@@ -165,8 +162,9 @@ void writeToThingSpeak(){
     client.print(data_to_send.length());
     client.print("\n\n");
     client.print(data_to_send);
+    Serial.println("Data sent.");
 
-    delay(1000);
+    delay(2000);
   }
 
   client.stop();
